@@ -102,7 +102,8 @@ and usage of using your command. For example: to quickly create a Cobra applicat
 
 		if canPub || canSub {
 			fmt.Printf("Adding topic: %s\n", mqtttopic)
-			meng.AddTopic(mqtttopic, signkey, valkey)
+			// meng.AddTopic(mqtttopic, signkey, valkey)
+			meng.PubSubToTopic(mqtttopic, signkey, valkey, nil)
 		}
 
 		cmnder, outbox, inbox, err := meng.StartEngine()
@@ -226,7 +227,8 @@ var mqttTapirConfigCmd = &cobra.Command{
 			fmt.Printf("Error fetching MQTT signing key: %v", err)
 			os.Exit(1)
 		}
-		meng.AddTopic(mqtttopic, signkey, nil)
+		// meng.AddTopic(mqtttopic, signkey, nil)
+		meng.PubSubToTopic(mqtttopic, signkey, nil, nil)
 
 		cmnder, outbox, _, err := meng.StartEngine()
 		if err != nil {
@@ -296,7 +298,8 @@ Will end the loop on the operation (or domain name) "QUIT"`,
 		if err != nil {
 			log.Fatalf("Error fetching MQTT signing key: %v", err)
 		}
-		meng.AddTopic(mqtttopic, signkey, nil)
+		// meng.AddTopic(mqtttopic, signkey, nil)
+		meng.PubSubToTopic(mqtttopic, signkey, nil, nil)
 
 		cmnder, outbox, _, err := meng.StartEngine()
 		if err != nil {
@@ -512,7 +515,8 @@ func PrintBootstrapMqttStatus(name string, src *SourceConf) error {
 		return fmt.Errorf("error setting up TLS for the API client: %v", err)
 	}
 
-	out := []string{"Server|Uptime|Src|Name|MQTT Topic|Msgs|LastMsg"}
+	// out := []string{"Server|Uptime|Src|Name|MQTT Topic|Msgs|LastMsg"}
+	out := []string{"Server|Uptime|Src|Name|MQTT Topic|Pub Msgs|LastPub|Sub Msgs|LastSub"}
 
 	// Iterate over the bootstrap servers
 	for _, server := range src.Bootstrap {
@@ -556,8 +560,12 @@ func PrintBootstrapMqttStatus(name string, src *SourceConf) error {
 			fmt.Printf("MQTT Bootstrap server %s responded with message: %s\n", server, br.Msg)
 		}
 
-		for topic, v := range br.MsgCounters {
-			out = append(out, fmt.Sprintf("%s|%v|%s|%s|%s|%d|%s", server, uptime, name, src.Name, topic, v, br.MsgTimeStamps[topic].Format(time.RFC3339)))
+		//		for topic, v := range br.MsgCounters {
+		//			out = append(out, fmt.Sprintf("%s|%v|%s|%s|%s|%d|%s", server, uptime, name, src.Name, topic, v, br.MsgTimeStamps[topic].Format(time.RFC3339)))
+		//		}
+
+		for topic, topicdata := range br.TopicData {
+			out = append(out, fmt.Sprintf("%s|%v|%s|%s|%s|%d|%s|%d|%s", server, uptime, name, src.Name, topic, topicdata.PubMsgs, topicdata.LatestPub.Format(time.RFC3339), topicdata.SubMsgs, topicdata.LatestSub.Format(time.RFC3339)))
 		}
 	}
 

@@ -224,7 +224,7 @@ var debugGreylistStatusCmd = &cobra.Command{
 		var br tapir.BootstrapResponse
 		err = json.Unmarshal(buf, &br)
 		if err != nil {
-			fmt.Printf("Error decoding bootstrap response as a tapir.CommandResponse: %v. Giving up.\n", err)
+			fmt.Printf("Error decoding bootstrap response as a tapir.BootstrapResponse: %v. Giving up.\n", err)
 			return
 		}
 		if br.Error {
@@ -233,10 +233,17 @@ var debugGreylistStatusCmd = &cobra.Command{
 		if len(br.Msg) != 0 {
 			fmt.Printf("Bootstrap response: %s\n", br.Msg)
 		}
-		out := []string{"Topic|Uptime|Last Msg|Time since last msg"}
-		for topic, count := range br.MsgCounters {
-			out = append(out, fmt.Sprintf("%s|%v|%v|%v", topic, count, br.MsgTimeStamps[topic].Format(time.RFC3339), time.Now().Sub(br.MsgTimeStamps[topic])))
+		out := []string{"Server|Uptime|Topic|Last Msg|Time since last msg"}
+
+		// for topic, count := range br.MsgCounters {
+		//		out = append(out, fmt.Sprintf("%s|%v|%v|%v", topic, count, br.MsgTimeStamps[topic].Format(time.RFC3339), time.Now().Sub(br.MsgTimeStamps[topic])))
+		// }
+
+		for topic, topicdata := range br.TopicData {
+			// out = append(out, fmt.Sprintf("%s|%v|%s|%s|%s|%d|%s|%d|%s", server, uptime, name, src.Name, topic, topicdata.PubMsgs, topicdata.LatestPub.Format(time.RFC3339), topicdata.SubMsgs, topicdata.LatestSub.Format(time.RFC3339)))
+			out = append(out, fmt.Sprintf("%s|%d|%s|%d|%s", topic, topicdata.PubMsgs, topicdata.LatestPub.Format(time.RFC3339), topicdata.SubMsgs, topicdata.LatestSub.Format(time.RFC3339)))
 		}
+
 		fmt.Printf("%s\n", columnize.SimpleFormat(out))
 	},
 }

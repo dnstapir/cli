@@ -11,6 +11,7 @@ import (
 
 	"github.com/dnstapir/tapir"
 	"github.com/miekg/dns"
+	"github.com/ryanuber/columnize"
 	"github.com/spf13/cobra"
 )
 
@@ -38,6 +39,31 @@ var TemCmd = &cobra.Command{
 var TemMqttCmd = &cobra.Command{
 	Use:   "mqtt",
 	Short: "Prefix command to TEM MQTT, only usable via sub-commands",
+}
+
+var TemStatusCmd = &cobra.Command{
+	Use:   "status",
+	Short: "Get the status of TEM",
+	Run: func(cmd *cobra.Command, args []string) {
+		resp := SendCommandCmd(tapir.CommandPost{
+			Command: "status",
+		})
+		if resp.Error {
+			fmt.Printf("%s\n", resp.ErrorMsg)
+		}
+
+		fmt.Printf("%s\n", resp.Msg)
+
+		fmt.Printf("TemStatus: %v\n", resp.TemStatus)
+		if len(resp.TemStatus.ComponentStatus) != 0 {
+			ts := resp.TemStatus
+			var out = []string{"Component|Status|Last event|Counters|Error msg|NumFailures|LastFailure"}
+			for k, v := range ts.ComponentStatus {
+				out = append(out, fmt.Sprintf("%s|%s|%s|%d|%s|%d|%s", k, v, ts.TimeStamps[k].Format(tapir.TimeLayout), ts.Counters[k], ts.ErrorMsgs[k], ts.NumFailures, ts.LastFailure.Format(tapir.TimeLayout)))
+			}
+			fmt.Printf("%s\n", columnize.SimpleFormat(out))
+		}
+	},
 }
 
 var TemStopCmd = &cobra.Command{
@@ -102,7 +128,7 @@ var TemMqttRestartCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(BumpCmd, TemCmd)
-	TemCmd.AddCommand(TemStopCmd, TemMqttCmd)
+	TemCmd.AddCommand(TemStatusCmd, TemStopCmd, TemMqttCmd)
 	TemMqttCmd.AddCommand(TemMqttStartCmd, TemMqttStopCmd, TemMqttRestartCmd)
 
 	BumpCmd.Flags().StringVarP(&tapir.GlobalCF.Zone, "zone", "z", "", "Zone name")
