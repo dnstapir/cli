@@ -17,7 +17,7 @@ import (
 
 var BumpCmd = &cobra.Command{
 	Use:   "bump",
-	Short: "Instruct TEM to bump the SOA serial of the RPZ zone",
+	Short: "Instruct TAPIR-POP to bump the SOA serial of the RPZ zone",
 	Run: func(cmd *cobra.Command, args []string) {
 		resp := SendCommandCmd(tapir.CommandPost{
 			Command: "bump",
@@ -31,19 +31,19 @@ var BumpCmd = &cobra.Command{
 	},
 }
 
-var TemCmd = &cobra.Command{
-	Use:   "tem",
-	Short: "Prefix command to TEM, only usable via sub-commands",
+var PopCmd = &cobra.Command{
+	Use:   "pop",
+	Short: "Prefix command to TAPIR-POP, only usable via sub-commands",
 }
 
-var TemMqttCmd = &cobra.Command{
+var PopMqttCmd = &cobra.Command{
 	Use:   "mqtt",
-	Short: "Prefix command to TEM MQTT, only usable via sub-commands",
+	Short: "Prefix command to TAPIR-POP MQTT, only usable via sub-commands",
 }
 
-var TemStatusCmd = &cobra.Command{
+var PopStatusCmd = &cobra.Command{
 	Use:   "status",
-	Short: "Get the status of TEM",
+	Short: "Get the status of TAPIR-POP",
 	Run: func(cmd *cobra.Command, args []string) {
 		resp := SendCommandCmd(tapir.CommandPost{
 			Command: "status",
@@ -66,9 +66,9 @@ var TemStatusCmd = &cobra.Command{
 	},
 }
 
-var TemStopCmd = &cobra.Command{
+var PopStopCmd = &cobra.Command{
 	Use:   "stop",
-	Short: "Instruct TEM to stop",
+	Short: "Instruct TAPIR-POP to stop",
 	Run: func(cmd *cobra.Command, args []string) {
 		resp := SendCommandCmd(tapir.CommandPost{
 			Command: "stop",
@@ -81,9 +81,9 @@ var TemStopCmd = &cobra.Command{
 	},
 }
 
-var TemMqttStartCmd = &cobra.Command{
+var PopMqttStartCmd = &cobra.Command{
 	Use:   "start",
-	Short: "Instruct TEM MQTT Engine to start",
+	Short: "Instruct TAPIR-POP MQTT Engine to start",
 	Run: func(cmd *cobra.Command, args []string) {
 		resp := SendCommandCmd(tapir.CommandPost{
 			Command: "mqtt-start",
@@ -96,9 +96,9 @@ var TemMqttStartCmd = &cobra.Command{
 	},
 }
 
-var TemMqttStopCmd = &cobra.Command{
+var PopMqttStopCmd = &cobra.Command{
 	Use:   "stop",
-	Short: "Instruct TEM MQTT Engine to stop",
+	Short: "Instruct TAPIR-POP MQTT Engine to stop",
 	Run: func(cmd *cobra.Command, args []string) {
 		resp := SendCommandCmd(tapir.CommandPost{
 			Command: "mqtt-stop",
@@ -111,9 +111,9 @@ var TemMqttStopCmd = &cobra.Command{
 	},
 }
 
-var TemMqttRestartCmd = &cobra.Command{
+var PopMqttRestartCmd = &cobra.Command{
 	Use:   "restart",
-	Short: "Instruct TEM MQTT Engine to restart",
+	Short: "Instruct TAPIR-POP MQTT Engine to restart",
 	Run: func(cmd *cobra.Command, args []string) {
 		resp := SendCommandCmd(tapir.CommandPost{
 			Command: "mqtt-restart",
@@ -127,9 +127,9 @@ var TemMqttRestartCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(BumpCmd, TemCmd)
-	TemCmd.AddCommand(TemStatusCmd, TemStopCmd, TemMqttCmd)
-	TemMqttCmd.AddCommand(TemMqttStartCmd, TemMqttStopCmd, TemMqttRestartCmd)
+	rootCmd.AddCommand(BumpCmd, PopCmd)
+	PopCmd.AddCommand(PopStatusCmd, PopStopCmd, PopMqttCmd)
+	PopMqttCmd.AddCommand(PopMqttStartCmd, PopMqttStopCmd, PopMqttRestartCmd)
 
 	BumpCmd.Flags().StringVarP(&tapir.GlobalCF.Zone, "zone", "z", "", "Zone name")
 }

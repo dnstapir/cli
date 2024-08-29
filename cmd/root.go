@@ -121,8 +121,14 @@ func RootInitConfig() {
 	//	}
 
 	baseurl := viper.GetString("cli." + servername + ".url")
+	if baseurl == "" {
+		log.Fatalf("Error: missing config key: cli.%s.url", servername)
+	}
 	if tapir.GlobalCF.UseTLS {
 		baseurl = viper.GetString("cli." + servername + ".tlsurl")
+		if baseurl == "" {
+			log.Fatalf("Error: missing config key: cli.%s.tlsurl", servername)
+		}
 	}
 
 	var err error
