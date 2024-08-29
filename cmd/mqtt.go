@@ -177,8 +177,8 @@ type ConfigFoo struct {
 
 var mqttTapirConfigCmd = &cobra.Command{
 	Use:   "config",
-	Short: "Send TEM global config in TapirMsg form to the tapir config MQTT topic",
-	Long: `Send TEM global config in TapirMsg form to the tapir config MQTT topic.
+	Short: "Send TAPIR-POP global config in TapirMsg form to the tapir config MQTT topic",
+	Long: `Send TAPIR-POP global config in TapirMsg form to the tapir config MQTT topic.
 	The -F option is required and specifies the file containing the global config in YAML format.
 	If -R is specified, will send a retained message, otherwise will send a normal message.
 	If -C is specified, will clear the retained config message, otherwise will send the new config.`,
@@ -503,7 +503,7 @@ func PrintBootstrapMqttStatus(name string, src *SourceConf) error {
 		log.Fatalf("Error: missing config key: certs.certdir")
 	}
 	// cert := cd + "/" + certname
-	cert := cd + "/" + "tem"
+	cert := cd + "/" + "tapir-pop"
 	tlsConfig, err := tapir.NewClientConfig(viper.GetString("certs.cacertfile"), cert+".key", cert+".crt")
 	if err != nil {
 		log.Fatalf("BootstrapMqttSource: Error: Could not set up TLS: %v", err)
@@ -597,7 +597,7 @@ type SourceConf struct {
 
 func ParseSources() (map[string]SourceConf, error) {
 	var srcfoo SrcFoo
-	configFile := filepath.Clean(tapir.TemSourcesCfgFile)
+	configFile := filepath.Clean(tapir.PopSourcesCfgFile)
 	data, err := os.ReadFile(configFile)
 	if err != nil {
 		return nil, fmt.Errorf("error reading config file: %v", err)
