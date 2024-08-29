@@ -37,9 +37,8 @@ var mqttpub, mqttsub, mqttretain, mqttconfigclear bool
 
 var mqttCmd = &cobra.Command{
 	Use:   "mqtt",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example: to quickly create a Cobra application.`,
+	Short: "Prefix command, not usable directly",
+	Long:  `Prefix command, not usable directly.`,
 }
 
 var mqttEngineCmd = &cobra.Command{
