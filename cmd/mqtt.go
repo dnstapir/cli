@@ -57,7 +57,19 @@ and usage of using your command. For example: to quickly create a Cobra applicat
 			pubsub = pubsub | tapir.TapirSub
 		}
 
-		meng, err := tapir.NewMqttEngine(mqttclientid, pubsub, log.Default())
+		var statusch = make(chan tapir.TemStatusUpdate, 10)
+
+		// If any status updates arrive, print them out
+		go func() {
+			for {
+				select {
+				case status := <-statusch:
+					fmt.Printf("Status update: %+v\n", status)
+				}
+			}
+		}()
+
+		meng, err := tapir.NewMqttEngine(mqttclientid, pubsub, statusch, log.Default())
 		if err != nil {
 			fmt.Printf("Error from NewMqttEngine: %v\n", err)
 			os.Exit(1)
@@ -96,7 +108,7 @@ and usage of using your command. For example: to quickly create a Cobra applicat
 			}
 
 		default:
-			log.Fatalf("Invalid MQTT topic: %s", mqtttopic)
+			log.Fatalf("Invalid MQTT topic: %s (must be config or observations)", mqtttopic)
 		}
 
 		if canPub || canSub {
@@ -182,7 +194,20 @@ var mqttTapirConfigCmd = &cobra.Command{
 	If -R is specified, will send a retained message, otherwise will send a normal message.
 	If -C is specified, will clear the retained config message, otherwise will send the new config.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		meng, err := tapir.NewMqttEngine(mqttclientid, tapir.TapirPub, log.Default()) // pub, no sub
+
+		var statusch = make(chan tapir.TemStatusUpdate, 10)
+
+		// If any status updates arrive, print them out
+		go func() {
+			for {
+				select {
+				case status := <-statusch:
+					fmt.Printf("Status update: %+v\n", status)
+				}
+			}
+		}()
+
+		meng, err := tapir.NewMqttEngine(mqttclientid, tapir.TapirPub, statusch, log.Default()) // pub, no sub
 		if err != nil {
 			fmt.Printf("Error from NewMqttEngine: %v\n", err)
 			os.Exit(1)
@@ -280,7 +305,20 @@ var mqttTapirObservationsCmd = &cobra.Command{
 	Long: `Will query for operation (add|del|show|send|set-ttl|list-tags|quit), domain name and tags.
 Will end the loop on the operation (or domain name) "QUIT"`,
 	Run: func(cmd *cobra.Command, args []string) {
-		meng, err := tapir.NewMqttEngine(mqttclientid, tapir.TapirPub, log.Default()) // pub, no sub
+
+		var statusch = make(chan tapir.TemStatusUpdate, 10)
+
+		// If any status updates arrive, print them out
+		go func() {
+			for {
+				select {
+				case status := <-statusch:
+					fmt.Printf("Status update: %+v\n", status)
+				}
+			}
+		}()
+
+		meng, err := tapir.NewMqttEngine(mqttclientid, tapir.TapirPub, statusch, log.Default()) // pub, no sub
 		if err != nil {
 			fmt.Printf("Error from NewMqttEngine: %v\n", err)
 			os.Exit(1)
@@ -409,6 +447,9 @@ Will end the loop on the operation (or domain name) "QUIT"`,
 				fmt.Println(columnize.SimpleFormat(out))
 
 			case "send":
+				if tapir.GlobalCF.Verbose {
+					fmt.Printf("Sending TAPIR-POP observation message to topic %s\n", mqtttopic)
+				}
 				outbox <- tapir.MqttPkg{
 					Type:   "data",
 					Topic:  mqtttopic,
