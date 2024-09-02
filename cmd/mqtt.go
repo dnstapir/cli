@@ -33,6 +33,8 @@ import (
 )
 
 var mqttclientid, mqtttopic, defaulttopic, mqttgreylist, cfgfile string
+
+var mqttfid string
 var mqttpub, mqttsub, mqttretain, mqttconfigclear bool
 
 var mqttCmd = &cobra.Command{
@@ -57,7 +59,7 @@ and usage of using your command. For example: to quickly create a Cobra applicat
 			pubsub = pubsub | tapir.TapirSub
 		}
 
-		var statusch = make(chan tapir.TemStatusUpdate, 10)
+		var statusch = make(chan tapir.ComponentStatusUpdate, 10)
 
 		// If any status updates arrive, print them out
 		go func() {
@@ -69,7 +71,7 @@ and usage of using your command. For example: to quickly create a Cobra applicat
 			}
 		}()
 
-		meng, err := tapir.NewMqttEngine(mqttclientid, pubsub, statusch, log.Default())
+		meng, err := tapir.NewMqttEngine("engine", mqttclientid, pubsub, statusch, log.Default())
 		if err != nil {
 			fmt.Printf("Error from NewMqttEngine: %v\n", err)
 			os.Exit(1)
@@ -104,6 +106,19 @@ and usage of using your command. For example: to quickly create a Cobra applicat
 			valkey, err = tapir.FetchMqttValidatorKey(mqtttopic, viper.GetString("tapir.observations.validatorkey"))
 			if err != nil {
 				fmt.Printf("Error fetching MQTT signing key: %s\n", viper.GetString("tapir.observations.validatorkey"))
+				canSub = false
+			}
+
+		case "status":
+			mqtttopic = viper.GetString("tapir.status.topic")
+			signkey, err = tapir.FetchMqttSigningKey(mqtttopic, viper.GetString("tapir.status.signingkey"))
+			if err != nil {
+				fmt.Printf("Error fetching MQTT signing key: %s\n", viper.GetString("tapir.status.signingkey"))
+				canPub = false
+			}
+			valkey, err = tapir.FetchMqttValidatorKey(mqtttopic, viper.GetString("tapir.status.validatorkey"))
+			if err != nil {
+				fmt.Printf("Error fetching MQTT signing key: %s\n", viper.GetString("tapir.status.validatorkey"))
 				canSub = false
 			}
 
@@ -195,7 +210,7 @@ var mqttTapirConfigCmd = &cobra.Command{
 	If -C is specified, will clear the retained config message, otherwise will send the new config.`,
 	Run: func(cmd *cobra.Command, args []string) {
 
-		var statusch = make(chan tapir.TemStatusUpdate, 10)
+		var statusch = make(chan tapir.ComponentStatusUpdate, 10)
 
 		// If any status updates arrive, print them out
 		go func() {
@@ -207,7 +222,7 @@ var mqttTapirConfigCmd = &cobra.Command{
 			}
 		}()
 
-		meng, err := tapir.NewMqttEngine(mqttclientid, tapir.TapirPub, statusch, log.Default()) // pub, no sub
+		meng, err := tapir.NewMqttEngine("config", mqttclientid, tapir.TapirPub, statusch, log.Default()) // pub, no sub
 		if err != nil {
 			fmt.Printf("Error from NewMqttEngine: %v\n", err)
 			os.Exit(1)
@@ -306,7 +321,7 @@ var mqttTapirObservationsCmd = &cobra.Command{
 Will end the loop on the operation (or domain name) "QUIT"`,
 	Run: func(cmd *cobra.Command, args []string) {
 
-		var statusch = make(chan tapir.TemStatusUpdate, 10)
+		var statusch = make(chan tapir.ComponentStatusUpdate, 10)
 
 		// If any status updates arrive, print them out
 		go func() {
@@ -318,7 +333,7 @@ Will end the loop on the operation (or domain name) "QUIT"`,
 			}
 		}()
 
-		meng, err := tapir.NewMqttEngine(mqttclientid, tapir.TapirPub, statusch, log.Default()) // pub, no sub
+		meng, err := tapir.NewMqttEngine("observations", mqttclientid, tapir.TapirPub, statusch, log.Default()) // pub, no sub
 		if err != nil {
 			fmt.Printf("Error from NewMqttEngine: %v\n", err)
 			os.Exit(1)
@@ -474,6 +489,176 @@ Will end the loop on the operation (or domain name) "QUIT"`,
 	},
 }
 
+var mqttTapirStatusCmd = &cobra.Command{
+	Use:   "status",
+	Short: "Send status updates to the tapir intel MQTT topic (debug tool)",
+	Long: `Will query for operation (add|del|show|send|set-ttl|list-tags|quit), component name and status.
+Will end the loop on the operation (or component name) "QUIT"`,
+	Run: func(cmd *cobra.Command, args []string) {
+
+		var statusch = make(chan tapir.ComponentStatusUpdate, 10)
+
+		// If any status updates arrive, print them out
+		go func() {
+			for {
+				select {
+				case status := <-statusch:
+					fmt.Printf("Status update: %+v\n", status)
+				}
+			}
+		}()
+
+		meng, err := tapir.NewMqttEngine("status", mqttclientid, tapir.TapirPub, statusch, log.Default()) // pub, no sub
+		if err != nil {
+			fmt.Printf("Error from NewMqttEngine: %v\n", err)
+			os.Exit(1)
+		}
+
+		mqtttopic = viper.GetString("tapir.status.topic")
+		if mqtttopic == "" {
+			fmt.Println("Error: tapir.status.topic not specified in config")
+			os.Exit(1)
+		}
+		fmt.Printf("Using DNS TAPIR status MQTT topic: %s\n", mqtttopic)
+
+		signkey, err := tapir.FetchMqttSigningKey(mqtttopic, viper.GetString("tapir.status.signingkey"))
+		if err != nil {
+			log.Fatalf("Error fetching MQTT signing key: %v", err)
+		}
+		// meng.AddTopic(mqtttopic, signkey, nil)
+		meng.PubSubToTopic(mqtttopic, signkey, nil, nil)
+
+		cmnder, outbox, _, err := meng.StartEngine()
+		if err != nil {
+			log.Fatalf("Error from StartEngine(): %v", err)
+		}
+
+		count := 0
+
+		SetupInterruptHandler(cmnder)
+
+		//		srcname := viper.GetString("tapir.status.srcname")
+		//		if srcname == "" {
+		//			fmt.Println("Error: tapir.status.srcname not specified in config")
+		//			os.Exit(1)
+		//		}
+
+		var op, cname, status string
+		var tmsg = tapir.TapirMsg{
+			SrcName:   "status",
+			Creator:   "tapir-cli",
+			MsgType:   "status",
+			TimeStamp: time.Now(),
+		}
+
+		var ops = []string{"add", "del", "show", "send", "set-ttl", "list-tags", "quit"}
+		fmt.Printf("Defined operations are: %v\n", ops)
+
+		tfs := tapir.TapirFunctionStatus{
+			Function:   "tapir-pop",
+			FunctionID: mqttfid,
+			ComponentStatus: map[string]tapir.TapirComponentStatus{
+				"downstream-notify": {
+					Component: "downstream-notify",
+					Status:    "failure",
+					ErrorMsg:  "Downstream notify is boiling over",
+				},
+			},
+		}
+
+		known_components := []string{"downstream-notify", "main-boot", "rpz-update", "mqtt-msg", "config", "rpz-update"}
+
+	cmdloop:
+		for {
+			count++
+			op = tapir.TtyRadioButtonQ("Operation", "add", ops)
+			switch op {
+			case "quit":
+				fmt.Println("QUIT cmd recieved.")
+				break cmdloop
+
+			case "add", "del":
+				cname = tapir.TtyQuestion("Component name", cname, false)
+				if len(cname) > 0 && strings.ToUpper(cname) == "QUIT" {
+					break cmdloop
+				}
+				if op == "del" {
+					delete(tfs.ComponentStatus, cname)
+					continue
+				}
+
+				for {
+					status = tapir.TtyQuestion("Status", status, false)
+					switch status {
+					case "ok", "fail", "warn":
+						break
+					default:
+						fmt.Printf("Error: unknown status: %s\n", status)
+						status = "fail"
+						continue
+					}
+					break
+				}
+
+				_, exist := tfs.ComponentStatus[cname]
+				if !exist {
+					tfs.ComponentStatus[cname] = tapir.TapirComponentStatus{
+						Component: cname,
+						Status:    "ok",
+						ErrorMsg:  "",
+					}
+				}
+				comp := tfs.ComponentStatus[cname]
+				comp.Status = status
+				if status == "fail" {
+					comp.LastFail = time.Now()
+					comp.NumFails++
+					comp.ErrorMsg = tapir.TtyQuestion("Error message", "", false)
+				} else {
+					comp.LastSuccess = time.Now()
+					comp.ErrorMsg = ""
+					comp.Msg = tapir.TtyQuestion("Message", "", false)
+				}
+				tfs.ComponentStatus[cname] = comp
+
+			case "show":
+				var out = []string{"Component|Status|ErrorMsg|Msg|NumFailures|LastFailure|LastSuccess"}
+				for cname, comp := range tfs.ComponentStatus {
+					out = append(out, fmt.Sprintf("%s|%s|%s|%s|%d|%s|%s", cname, comp.Status, comp.ErrorMsg, comp.Msg, comp.NumFails,
+						comp.LastFail.Format(tapir.TimeLayout), comp.LastSuccess.Format(tapir.TimeLayout)))
+				}
+				fmt.Println(columnize.SimpleFormat(out))
+
+			case "list-comp":
+				fmt.Printf("%v\n", known_components)
+
+			case "send":
+				if tapir.GlobalCF.Verbose {
+					fmt.Printf("Sending TAPIR-POP status message to topic %s\n", mqtttopic)
+				}
+				tmsg.TapirFunctionStatus = tfs
+				outbox <- tapir.MqttPkg{
+					Type:   "data",
+					Topic:  mqtttopic,
+					Retain: false,
+					Data:   tmsg,
+				}
+
+				tmsg = tapir.TapirMsg{
+					Creator:   "tapir-cli",
+					MsgType:   "status",
+					TimeStamp: time.Now(),
+				}
+
+			}
+		}
+		respch := make(chan tapir.MqttEngineResponse, 2)
+		meng.CmdChan <- tapir.MqttEngineCmd{Cmd: "stop", Resp: respch}
+		r := <-respch
+		fmt.Printf("Response from MQTT Engine: %v\n", r)
+	},
+}
+
 var mqttTapirBootstrapCmd = &cobra.Command{
 	Use:   "bootstrap",
 	Short: "MQTT Bootstrap commands",
@@ -508,7 +693,7 @@ var mqttTapirBootstrapStatusCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(mqttCmd)
 	mqttCmd.AddCommand(mqttEngineCmd, mqttTapirCmd)
-	mqttTapirCmd.AddCommand(mqttTapirObservationsCmd, mqttTapirConfigCmd, mqttTapirBootstrapCmd)
+	mqttTapirCmd.AddCommand(mqttTapirObservationsCmd, mqttTapirConfigCmd, mqttTapirStatusCmd, mqttTapirBootstrapCmd)
 	mqttTapirBootstrapCmd.AddCommand(mqttTapirBootstrapStatusCmd)
 
 	mqttCmd.PersistentFlags().StringVarP(&mqtttopic, "topic", "t", "", "MQTT topic, default from tapir-cli config")
@@ -521,6 +706,8 @@ func init() {
 	mqttTapirConfigCmd.Flags().BoolVarP(&mqttconfigclear, "clear", "C", false, "Clear retained config message")
 	mqttTapirConfigCmd.Flags().StringVarP(&cfgfile, "cfgfile", "F", "", "Name of file containing global config to send")
 	mqttTapirBootstrapCmd.PersistentFlags().StringVarP(&mqttgreylist, "greylist", "G", "dns-tapir", "Greylist to inquire about")
+
+	mqttTapirStatusCmd.Flags().StringVarP(&mqttfid, "functionid", "F", "tapir-cli debug tool", "Function ID to send status for")
 }
 
 func PrintBootstrapMqttStatus(name string, src *SourceConf) error {

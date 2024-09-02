@@ -158,6 +158,26 @@ var debugReaperStatsCmd = &cobra.Command{
 	},
 }
 
+var popcomponent, popstatus string
+
+var debugUpdatePopStatusCmd = &cobra.Command{
+	Use:   "update-pop-status",
+	Short: "Update the status of a TAPIR-POP component, to trigger a status update over MQTT",
+	Run: func(cmd *cobra.Command, args []string) {
+		resp := SendDebugCmd(tapir.DebugPost{
+			Command:   "send-status",
+			Component: popcomponent,
+			Status:    popstatus,
+		})
+		if resp.Error {
+			fmt.Printf("%s\n", resp.ErrorMsg)
+		}
+		if resp.Msg != "" {
+			fmt.Printf("%s\n", resp.Msg)
+		}
+	},
+}
+
 var zonefile string
 
 var debugSyncZoneCmd = &cobra.Command{
@@ -361,16 +381,11 @@ func init() {
 	debugcmdCmd.AddCommand(debugSyncZoneCmd, debugZoneDataCmd, debugColourlistsCmd, debugGenRpzCmd)
 	debugcmdCmd.AddCommand(debugMqttStatsCmd, debugReaperStatsCmd)
 	debugcmdCmd.AddCommand(debugImportGreylistCmd, debugGreylistStatusCmd)
-	debugcmdCmd.AddCommand(debugGenerateSchemaCmd)
+	debugcmdCmd.AddCommand(debugGenerateSchemaCmd, debugUpdatePopStatusCmd)
 
-	// Here you will define your flags and configuration settings.
+	debugUpdatePopStatusCmd.Flags().StringVarP(&popcomponent, "component", "c", "", "Component name")
+	debugUpdatePopStatusCmd.Flags().StringVarP(&popstatus, "status", "s", "", "Component status (ok, warn, fail)")
 
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// debugcmdCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
 	debugImportGreylistCmd.Flags().StringVarP(&Listname, "list", "l", "", "Greylist name")
 	debugSyncZoneCmd.Flags().StringVarP(&tapir.GlobalCF.Zone, "zone", "z", "", "Zone name")
 	debugZoneDataCmd.Flags().StringVarP(&tapir.GlobalCF.Zone, "zone", "z", "", "Zone name")

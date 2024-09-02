@@ -54,12 +54,13 @@ var PopStatusCmd = &cobra.Command{
 
 		fmt.Printf("%s\n", resp.Msg)
 
-		fmt.Printf("TemStatus: %v\n", resp.TemStatus)
-		if len(resp.TemStatus.ComponentStatus) != 0 {
-			ts := resp.TemStatus
-			var out = []string{"Component|Status|Last event|Counters|Error msg|NumFailures|LastFailure"}
-			for k, v := range ts.ComponentStatus {
-				out = append(out, fmt.Sprintf("%s|%s|%s|%d|%s|%d|%s", k, v, ts.TimeStamps[k].Format(tapir.TimeLayout), ts.Counters[k], ts.ErrorMsgs[k], ts.NumFailures, ts.LastFailure.Format(tapir.TimeLayout)))
+		fmt.Printf("TAPIR-POP Status: %+v\n", resp.TapirFunctionStatus)
+		if len(resp.TapirFunctionStatus.ComponentStatus) != 0 {
+			tfs := resp.TapirFunctionStatus
+			fmt.Printf("TAPIR-POP Status. Reported components: %d Total errors (since last start): %d\n", len(tfs.ComponentStatus), tfs.NumFailures)
+			var out = []string{"Component|Status|Error msg|# Fails|# Warns|LastFailure|LastSuccess"}
+			for k, v := range tfs.ComponentStatus {
+				out = append(out, fmt.Sprintf("%s|%s|%s|%d|%d|%v|%v", k, v.Status, v.ErrorMsg, v.NumFails, v.NumWarns, v.LastFail.Format(tapir.TimeLayout), v.LastSuccess.Format(tapir.TimeLayout)))
 			}
 			fmt.Printf("%s\n", columnize.SimpleFormat(out))
 		}
