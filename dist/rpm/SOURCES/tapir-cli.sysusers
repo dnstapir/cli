@@ -1,2 +1,3 @@
-u tapir-cli - "DNSTAPIR EDGE CLI" /etc/dnstapir/ /sbin/nologin
+u tapir-renew - "DNSTAPIR EDGE Certificate Renewer" /etc/dnstapir/ /sbin/nologin
 g dnstapir -
+m tapir-renew dnstapir
