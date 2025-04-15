@@ -10,7 +10,7 @@ Source0:        %{name}
 Source1:        tapir-renew.service
 Source2:        tapir-renew.timer
 Source3:        tapir-cli.yaml
-#Source4:        tapir-cli.sysusers # TODO use if fedora 42+ is supported
+#Source4:        tapir-renew.sysusers # TODO use if fedora 42+ is supported
 
 %description
 DNSTAPIR EDGE ClI Tool for managing an EDGE deployment
@@ -29,8 +29,8 @@ install -m 0640 %{SOURCE3} %{buildroot}%{_sysconfdir}/dnstapir/
 #install -m 0644 -D %{SOURCE4} %{buildroot}%{_sysusersdir}/tapir-edge.conf # TODO use if fedora 42+ is supported
 
 %files
-%attr(0660,root,dnstapir) %dir %{_sysconfdir}/dnstapir
-%attr(0660,root,dnstapir) %dir %{_sysconfdir}/dnstapir/certs
+%attr(0770,root,dnstapir) %dir %{_sysconfdir}/dnstapir
+%attr(0770,root,dnstapir) %dir %{_sysconfdir}/dnstapir/certs
 %attr(0770,root,dnstapir) %{_bindir}/%{name}
 %attr(0660,root,dnstapir) %{_sysconfdir}/dnstapir/tapir-cli.yaml
 #%attr(0664,root,dnstapir) %{_sysusersdir}/tapir-renew.conf # TODO use if fedora 42+ is supported
