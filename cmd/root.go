@@ -55,6 +55,7 @@ func init() {
 	rootCmd.PersistentFlags().BoolVarP(&tapir.GlobalCF.Debug, "debug", "d", false, "Debugging output")
 	rootCmd.PersistentFlags().BoolVarP(&tapir.GlobalCF.ShowHdr, "headers", "H", false, "Show column headers")
 	rootCmd.PersistentFlags().BoolVarP(&tapir.GlobalCF.UseTLS, "tls", "", true, "Use a TLS connection to TAPIR-POP")
+	rootCmd.PersistentFlags().StringVar(&tapir.GlobalCF.Certname, "certname", "tls", "name prefix of tls cert and key")
 
 	rootCmd.AddCommand(cmd.PopCmd)
 	rootCmd.AddCommand(cmd.DawgCmd)
