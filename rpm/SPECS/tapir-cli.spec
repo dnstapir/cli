@@ -10,6 +10,7 @@ Source0:       %{name}-%{version}.tar.gz
 Source1:       tapir-renew.service
 Source2:       tapir-renew.timer
 Source3:       tapir-cli.yaml
+Source4:       tapir-restartpop.service
 BuildRequires: git
 BuildRequires: golang
 
@@ -38,6 +39,7 @@ mkdir -p %{buildroot}%{_sysconfdir}/dnstapir/certs
 install -p -m 0755 %{name} %{buildroot}%{_bindir}/%{name}
 install -m 0644 %{SOURCE1} %{buildroot}%{_unitdir}
 install -m 0644 %{SOURCE2} %{buildroot}%{_unitdir}
+install -m 0644 %{SOURCE4} %{buildroot}%{_unitdir}
 install -m 0640 %{SOURCE3} %{buildroot}%{_sysconfdir}/dnstapir/
 
 %files
@@ -47,6 +49,7 @@ install -m 0640 %{SOURCE3} %{buildroot}%{_sysconfdir}/dnstapir/
 %attr(0660,root,dnstapir) %{_sysconfdir}/dnstapir/tapir-cli.yaml
 %attr(0644,root,dnstapir) %{_unitdir}/tapir-renew.service
 %attr(0644,root,dnstapir) %{_unitdir}/tapir-renew.timer
+%attr(0644,root,dnstapir) %{_unitdir}/tapir-restartpop.service
 
 %pre
 /usr/bin/getent group dnstapir || /usr/sbin/groupadd -r dnstapir

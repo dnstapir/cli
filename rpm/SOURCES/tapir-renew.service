@@ -1,6 +1,10 @@
 [Unit]
 Description=DNSTAPIR EDGE Certificate Renewal
+Wants=network-online.target
 After=network-online.target
+Wants=tapir-restartpop.service
+Before=tapir-restartpop.service
+
 
 [Service]
 Type=oneshot

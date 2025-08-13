@@ -1,0 +1,6 @@
+[Unit]
+Description=DNSTAPIR EDGE Restart pop after certificate renewal
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/systemctl restart tapir-pop.service
