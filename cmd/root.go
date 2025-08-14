@@ -119,13 +119,18 @@ func RootInitConfig() {
 	}
 
 	if tapir.GlobalCF.UseTLS { // default = true
-		cd := viper.GetString("certs.certdir")
-		if cd == "" {
-			log.Fatalf("Error: missing config key: certs.certdir")
+        certPath := viper.GetString("certs.cert")
+		keyPath := viper.GetString("certs.key")
+		caCertPath := viper.GetString("certs.cacertfile")
+		if certPath == "" || keyPath == "" || caCertPath == "" {
+			log.Fatalf("Error: missing TLS config keys: certs.cert, certs.key and/or certs.cacertfile in %s", viper.ConfigFileUsed())
 		}
-		cert := cd + "/" + tapir.GlobalCF.Certname
-		tlsConfig, err := tapir.NewClientConfig(viper.GetString("certs.cacertfile"),
-			cert+".key", cert+".crt")
+		for _, f := range []string{certPath, keyPath, caCertPath} {
+			if _, statErr := os.Stat(f); statErr != nil {
+				log.Fatalf("Error: TLS file not accessible: %s (%v)", f, statErr)
+			}
+		}
+		tlsConfig, err := tapir.NewClientConfig(caCertPath, keyPath, certPath)
 		if err != nil {
 			log.Fatalf("Error: Could not set up TLS: %v", err)
 		}
