@@ -9,7 +9,6 @@ URL:           https://www.github.com/dnstapir/cli
 Source0:       %{name}-%{version}.tar.gz
 Source1:       tapir-renew.service
 Source2:       tapir-renew.timer
-Source3:       tapir-cli.yaml
 BuildRequires: git
 BuildRequires: golang
 
@@ -38,13 +37,12 @@ mkdir -p %{buildroot}%{_sysconfdir}/dnstapir/certs
 install -p -m 0755 %{name} %{buildroot}%{_bindir}/%{name}
 install -m 0644 %{SOURCE1} %{buildroot}%{_unitdir}
 install -m 0644 %{SOURCE2} %{buildroot}%{_unitdir}
-install -m 0640 %{SOURCE3} %{buildroot}%{_sysconfdir}/dnstapir/
 
 %files
 %attr(0770,root,dnstapir) %dir %{_sysconfdir}/dnstapir
 %attr(0770,root,dnstapir) %dir %{_sysconfdir}/dnstapir/certs
 %attr(0770,root,dnstapir) %{_bindir}/%{name}
-%attr(0660,root,dnstapir) %{_sysconfdir}/dnstapir/tapir-cli.yaml
+%attr(0660,-,dnstapir) %ghost %{_sysconfdir}/dnstapir/tapir-cli.yaml
 %attr(0644,root,dnstapir) %{_unitdir}/tapir-renew.service
 %attr(0644,root,dnstapir) %{_unitdir}/tapir-renew.timer
 
