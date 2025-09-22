@@ -5,7 +5,7 @@ go 1.23.0
 toolchain go1.23.7
 
 require (
-	github.com/dnstapir/tapir v0.0.0-20250916134600-6f3506c45053
+	github.com/dnstapir/tapir v0.0.0-20250922131621-2e6efde82b88
 	github.com/go-playground/validator/v10 v10.9.0
 	github.com/spf13/cobra v1.8.1
 	github.com/spf13/viper v1.18.1
