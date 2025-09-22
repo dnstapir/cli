@@ -22,6 +22,8 @@ github.com/dnstapir/tapir v0.0.0-20250911072630-abc0ba3af0fe h1:1If23nTBEY1koJZI
 github.com/dnstapir/tapir v0.0.0-20250911072630-abc0ba3af0fe/go.mod h1:A6BFxLXbsLJNj80yFy/OWVb7RmLyFIvXDgvFtRSN3ho=
 github.com/dnstapir/tapir v0.0.0-20250916134600-6f3506c45053 h1:UtoWJ0I3FkYjOiSnJf8NFzUzGc/nN+xzVGRB8+Vrxi4=
 github.com/dnstapir/tapir v0.0.0-20250916134600-6f3506c45053/go.mod h1:A6BFxLXbsLJNj80yFy/OWVb7RmLyFIvXDgvFtRSN3ho=
+github.com/dnstapir/tapir v0.0.0-20250922131621-2e6efde82b88 h1:xaq6aaK4JbZqC26iRYPNau06Oq/K5YVPex+ISUyBq9w=
+github.com/dnstapir/tapir v0.0.0-20250922131621-2e6efde82b88/go.mod h1:A6BFxLXbsLJNj80yFy/OWVb7RmLyFIvXDgvFtRSN3ho=
 github.com/eclipse/paho.golang v0.21.0 h1:cxxEReu+iFbA5RrHfRGxJOh8tXZKDywuehneoeBeyn8=
 github.com/eclipse/paho.golang v0.21.0/go.mod h1:GHF6vy7SvDbDHBguaUpfuBkEB5G6j0zKxMG4gbh6QRQ=
 github.com/frankban/quicktest v1.14.6 h1:7Xjx+VpznH+oBnejlPUj8oUpdxnVs4f8XU8WnHkI4W8=
