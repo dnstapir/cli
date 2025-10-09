@@ -36,3 +36,9 @@ version.go
 #!rpm/SOURCES/tapir-renew.timer
 #!rpm/SOURCES/tapir-cli.yaml
 #!rpm/SPECS/tapir-cli.spec
+
+# Ignore deb build directory and related stuff
+*.deb
+deb/
+!deb/DEBIAN/control
+!deb/DEBIAN/postinst
