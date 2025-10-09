@@ -61,6 +61,7 @@ deb: build
 	mkdir -p deb/usr/lib/systemd/system
 	cp tapir-cli deb/usr/bin
 	cp rpm/SOURCES/tapir-renew.service deb/usr/lib/systemd/system
+	cp rpm/SOURCES/tapir-renew.timer deb/usr/lib/systemd/system
 	dpkg-deb -b deb/ tapir-cli-$(VERSION).deb
 
 .PHONY: build clean
