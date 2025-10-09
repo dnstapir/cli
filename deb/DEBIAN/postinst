@@ -1,0 +1,10 @@
+#!/bin/bash
+set -e
+
+getent group dnstapir || addgroup dnstapir
+getent passwd tapir-renew || adduser --ingroup dnstapir --system tapir-renew
+
+if [ -z "$2" ]; then
+    chown root:dnstapir /etc/dnstapir/certs
+    chmod 770 /etc/dnstapir/certs
+fi
