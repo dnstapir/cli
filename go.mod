@@ -1,4 +1,4 @@
-module tapir-cli
+module dnstapir-cli
 
 go 1.23.0
 

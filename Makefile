@@ -1,4 +1,4 @@
-PROG:=tapir-cli
+PROG:=dnstapir-cli
 # -----
 VERSION:=`cat ./VERSION`
 COMMIT:=`git describe --dirty=+WiP --always`
@@ -10,7 +10,7 @@ GOOS ?= $(shell uname -s | tr A-Z a-z)
 GO:=GOOS=$(GOOS) CGO_ENABLED=0 go
 # GO:=GOOS=$(GOOS) GOARCH=$(GOARCH) CGO_ENABLED=1 go
 
-SPECFILE:=rpm/SPECS/tapir-cli.spec
+SPECFILE:=rpm/SPECS/dnstapir-cli.spec
 
 default: ${PROG}
 

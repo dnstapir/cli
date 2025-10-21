@@ -26,6 +26,7 @@ go.work
 
 # Local additions
 tapir-cli
+dnstapir-cli
 version.go
 
 # Ignore rpm build directory and related stuff
