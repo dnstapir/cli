@@ -40,7 +40,7 @@ clean:
 	@rm -rf deb/usr
 	@rm -rf deb/etc
 	@rm -rf deb/var
-	@rm *.deb
+	@rm -f *.deb
 
 install:
 	install -b -c -s ${PROG} /usr/local/bin/
