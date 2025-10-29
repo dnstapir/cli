@@ -1,19 +1,19 @@
-Name:          tapir-cli
+Name:          dnstapir-cli
 # NOTE: Version must match VERSION file - validated by Makefile srpm target
 Version:       v0.3
 Release:       1%{?dist}
 Group:         dnstapir/edge
-Summary:       DNSTAPIR EDGE Cli Tool
+Summary:       DNS TAPIR EDGE Cli Tool
 License:       BSD
 URL:           https://www.github.com/dnstapir/cli
 Source0:       %{name}-%{version}.tar.gz
-Source1:       tapir-renew.service
-Source2:       tapir-renew.timer
+Source1:       dnstapir-renew.service
+Source2:       dnstapir-renew.timer
 BuildRequires: git
 BuildRequires: golang
 
 %description
-DNSTAPIR EDGE ClI Tool for managing an EDGE deployment
+DNS TAPIR EDGE ClI Tool for managing an EDGE deployment
 
 # Disable building of debug packages for RHEL (we include symbols per default)
 %if 0%{?rhel} >= 9
@@ -42,13 +42,13 @@ install -m 0644 %{SOURCE2} %{buildroot}%{_unitdir}
 %attr(0770,root,dnstapir) %dir %{_sysconfdir}/dnstapir
 %attr(0770,root,dnstapir) %dir %{_sysconfdir}/dnstapir/certs
 %attr(0770,root,dnstapir) %{_bindir}/%{name}
-%attr(0660,-,dnstapir) %ghost %{_sysconfdir}/dnstapir/tapir-cli.yaml
-%attr(0644,root,dnstapir) %{_unitdir}/tapir-renew.service
-%attr(0644,root,dnstapir) %{_unitdir}/tapir-renew.timer
+%attr(0660,-,dnstapir) %ghost %{_sysconfdir}/dnstapir/dnstapir-cli.yaml
+%attr(0644,root,dnstapir) %{_unitdir}/dnstapir-renew.service
+%attr(0644,root,dnstapir) %{_unitdir}/dnstapir-renew.timer
 
 %pre
 /usr/bin/getent group dnstapir || /usr/sbin/groupadd -r dnstapir
-/usr/bin/getent passwd tapir-renew || /usr/sbin/useradd -r -d /etc/dnstapir -G dnstapir -s /sbin/nologin tapir-renew
+/usr/bin/getent passwd dnstapir-renew || /usr/sbin/useradd -r -d /etc/dnstapir -G dnstapir -s /sbin/nologin dnstapir-renew
 
 %post
 

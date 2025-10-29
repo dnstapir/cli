@@ -29,8 +29,8 @@ type Services struct {
 }
 
 var rootCmd = &cobra.Command{
-	Use:   "tapir-cli",
-	Short: "CLI  utility used to interact with TAPIR-POP, i.e. the TAPIR Policy Processor",
+	Use:   "dnstapir-cli",
+	Short: "CLI  utility used to interact with POP, i.e. the DNS TAPIR Policy Processor",
 }
 
 func Execute() {
@@ -46,13 +46,13 @@ func init() {
 	cobra.OnInitialize(RootInitConfig)
 	cobra.OnInitialize(initConfig)
 
-	rootCmd.PersistentFlags().BoolVarP(&standalone, "standalone", "", false, "Run in standalone mode, do not connect to TAPIR-POP")
+	rootCmd.PersistentFlags().BoolVarP(&standalone, "standalone", "", false, "Run in standalone mode, do not connect to running POP process")
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", tapir.DefaultTapirCliCfgFile,
 		fmt.Sprintf("config file (default is %s)", tapir.DefaultTapirCliCfgFile))
 	rootCmd.PersistentFlags().BoolVarP(&tapir.GlobalCF.Verbose, "verbose", "v", false, "Verbose mode")
 	rootCmd.PersistentFlags().BoolVarP(&tapir.GlobalCF.Debug, "debug", "d", false, "Debugging output")
 	rootCmd.PersistentFlags().BoolVarP(&tapir.GlobalCF.ShowHdr, "headers", "H", false, "Show column headers")
-	rootCmd.PersistentFlags().BoolVarP(&tapir.GlobalCF.UseTLS, "tls", "", true, "Use a TLS connection to TAPIR-POP")
+	rootCmd.PersistentFlags().BoolVarP(&tapir.GlobalCF.UseTLS, "tls", "", true, "Use a TLS connection to POP process")
 
 	rootCmd.AddCommand(cmd.PopCmd)
 	rootCmd.AddCommand(cmd.DawgCmd)
