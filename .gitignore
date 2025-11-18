@@ -41,6 +41,9 @@ version.go
 # Ignore deb build directory and related stuff
 *.deb
 deb/
-!deb/DEBIAN/control
+!deb/DEBIAN/control.in
 !deb/DEBIAN/postinst
 !deb/DEBIAN/postrm
+
+# Ignore built stuff
+out/
