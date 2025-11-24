@@ -68,4 +68,4 @@ deb: build
 	sed -e "s/@@VERSION@@/$(DEB_VERSION)/g" $(OUT)/deb/DEBIAN/control.in > $(OUT)/deb/DEBIAN/control
 	dpkg-deb -b $(OUT)/deb/ $(OUT)/$(PROG)-$(DEB_VERSION).deb
 
-.PHONY: build clean
+.PHONY: all default build install lint tarball srpm rpm deb clean
