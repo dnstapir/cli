@@ -5,7 +5,7 @@ For this the config details needed to connect to eg. dnstapir-pop are
 located in the config files in the /etc/dnstapir/ directory.
 
 For some uses, though, `dnstapir-cli` is used in "standalone" mode. One
-example of this is the creation anad manipulation of DAWG files
+example of this is the creation and manipulation of DAWG files
 containing large lists of domain names in a compact format. To run
 `dnstapir-cli` in standalone mode, without the need for any config files,
 use the command flag `--standalone`.

@@ -62,7 +62,7 @@ rpm: srpm
 deb: build
 	cp -r deb $(OUT)
 	mkdir -p $(OUT)/deb/usr/bin
-	mkdir -p deb/etc/dnstapir/certs
+	mkdir -p $(OUT)/deb/etc/dnstapir/certs
 	mkdir -p $(OUT)/deb/usr/lib/systemd/system
 	cp $(OUT)/$(PROG) $(OUT)/deb/usr/bin
 	sed -e "s/@@VERSION@@/$(DEB_VERSION)/g" $(OUT)/deb/DEBIAN/control.in > $(OUT)/deb/DEBIAN/control
