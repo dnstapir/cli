@@ -1,12 +1,14 @@
+# Disable building of debug packages
+%global debug_package %{nil}
+
 Name:          dnstapir-cli
-# NOTE: Version must match VERSION file - validated by Makefile srpm target
-Version:       v0.3
+Version:       @@VERSION@@
 Release:       1%{?dist}
 Group:         dnstapir/edge
 Summary:       DNS TAPIR EDGE Cli Tool
 License:       BSD
 URL:           https://www.github.com/dnstapir/cli
-Source0:       %{name}-%{version}.tar.gz
+Source0:       %{name}.tar.gz
 Source1:       dnstapir-renew.service
 Source2:       dnstapir-renew.timer
 BuildRequires: git
@@ -14,11 +16,6 @@ BuildRequires: golang
 
 %description
 DNS TAPIR EDGE ClI Tool for managing an EDGE deployment
-
-# Disable building of debug packages for RHEL (we include symbols per default)
-%if 0%{?rhel} >= 9
-%global debug_package %{nil}
-%endif
 
 %{!?_unitdir: %define _unitdir /usr/lib/systemd/system/}
 %{!?_sysusersdir: %define _sysusersdir /usr/lib/sysusers.d/}
@@ -34,7 +31,7 @@ mkdir -p %{buildroot}%{_bindir}
 mkdir -p %{buildroot}%{_unitdir}
 mkdir -p %{buildroot}%{_sysconfdir}/dnstapir/certs
 
-install -p -m 0755 %{name} %{buildroot}%{_bindir}/%{name}
+DESTDIR=%{buildroot}%{_bindir} make install
 install -m 0644 %{SOURCE1} %{buildroot}%{_unitdir}
 install -m 0644 %{SOURCE2} %{buildroot}%{_unitdir}
 
