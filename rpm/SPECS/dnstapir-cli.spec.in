@@ -22,6 +22,12 @@ Source3:       dnstapir-renew.sysusers.conf
 BuildRequires: git
 BuildRequires: golang
 
+%if %{with sysusers_compat} && 0%{?suse_version}
+Provides: user(dnstapir-renew)
+Provides: group(dnstapir)
+%endif
+
+
 %description
 DNS TAPIR EDGE ClI Tool for managing an EDGE deployment
 
