@@ -31,8 +31,8 @@ Provides: group(dnstapir)
 %description
 DNS TAPIR EDGE ClI Tool for managing an EDGE deployment
 
-%{!?_unitdir: %define _unitdir /usr/lib/systemd/system/}
-%{!?_sysusersdir: %define _sysusersdir /usr/lib/sysusers.d/}
+%{!?_unitdir: %define _unitdir /usr/lib/systemd/system}
+%{!?_sysusersdir: %define _sysusersdir /usr/lib/sysusers.d}
 
 %prep
 %setup -n %{name}
