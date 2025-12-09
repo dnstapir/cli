@@ -57,13 +57,14 @@ srpm: tarball
 	test -z "$(outdir)" || cp $(OUT)/$(PROG)-$(RPM_VERSION)-*.src.rpm "$(outdir)"
 
 rpm: srpm
-	rpmbuild --recompile --define "%_topdir $(OUT)/rpm" --undefine=dist $(OUT)/$(PROG)-$(RPM_VERSION)-*.src.rpm
+	rpmbuild --rebuild --define "%_topdir $(OUT)/rpm" --undefine=dist $(OUT)/$(PROG)-$(RPM_VERSION)-*.src.rpm
+	cp $(OUT)/rpm/RPMS/*/$(PROG)-$(RPM_VERSION)-*.rpm $(OUT)
+	test -z "$(outdir)" || cp $(OUT)/$(PROG)-$(RPM_VERSION)-*.rpm "$(outdir)"
 
 deb: build
 	cp -r deb $(OUT)
 	mkdir -p $(OUT)/deb/usr/bin
 	mkdir -p $(OUT)/deb/etc/dnstapir/certs
-	mkdir -p $(OUT)/deb/usr/lib/systemd/system
 	cp $(OUT)/$(PROG) $(OUT)/deb/usr/bin
 	sed -e "s/@@VERSION@@/$(DEB_VERSION)/g" $(OUT)/deb/DEBIAN/control.in > $(OUT)/deb/DEBIAN/control
 	dpkg-deb -b $(OUT)/deb/ $(OUT)/$(PROG)-$(DEB_VERSION).deb
