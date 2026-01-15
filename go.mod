@@ -2,6 +2,8 @@ module dnstapir-cli
 
 go 1.24.0
 
+replace github.com/dnstapir/tapir => ../tapir
+
 require (
 	github.com/dnstapir/tapir v0.0.0-20251029102003-58142cabe113
 	github.com/go-playground/validator/v10 v10.9.0
