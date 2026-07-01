@@ -1,6 +1,8 @@
 [Unit]
 Description=DNS TAPIR Edge Certificate Renewal
 After=network-online.target
+StartLimitIntervalSec=5d
+StartLimitBurst=9
 
 [Service]
 Type=oneshot
@@ -11,3 +13,5 @@ ExecStart=/usr/bin/dnstapir-cli --standalone renew \
     --renew-cacert-out /etc/dnstapir/certs/ca.crt \
     --renew-clientkey /etc/dnstapir/certs/tls.key \
     --renew-clientcert-out /etc/dnstapir/certs/tls.crt
+Restart=on-failure
+RestartSec=12h
