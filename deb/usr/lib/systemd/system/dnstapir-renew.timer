@@ -6,7 +6,8 @@ ConditionPathExists=/etc/dnstapir/certs/tls.key
 ConditionPathExists=/etc/dnstapir/certs/tls.crt
 
 [Timer]
-OnCalendar=weekly
+OnCalendar=Mon *-*-* 12:00:00 Europe/Stockholm
+Persistent=true
 AccuracySec=1h
 RandomizedDelaySec=100min
 
