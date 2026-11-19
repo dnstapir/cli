@@ -1,11 +1,8 @@
-#######################################
-# VERSION SOURCE OF TRUTH FOR PROJECT #
-#######################################
-VERSION:=0.0.0
-
 PROG:=dnstapir-cli
 OUT:=$$(pwd)/out
-COMMIT:=$$(cat COMMIT 2> /dev/null || git describe --dirty=+WiP --always 2> /dev/null)
+HAS_TAG:=$(shell git describe --exact-match --tags 2> /dev/null)
+VERSION:=$(shell test -n "$(HAS_TAG)" && git describe --exact-match --tags 2> /dev/null | sed 's/^v//' || cat VERSION 2> /dev/null || echo "0.0.0")
+COMMIT:=$(shell git describe --dirty=+WiP --always 2> /dev/null || cat COMMIT 2> /dev/null || echo "no_vcs_info")
 GOFLAGS:=-v -ldflags "-X 'main.version=$(VERSION)' -X 'main.commit=$(COMMIT)' -X 'main.name=$(PROG)'"
 GOOS ?= $(shell uname -s | tr A-Z a-z)
 GO:=GOOS=$(GOOS) GOARCH=$(GOARCH) CGO_ENABLED=0 go
@@ -47,8 +44,11 @@ clean:
 	@rm -rf $(OUT)
 
 tarball: outdir
+	@rm -f "$(OUT)/$(PROG).tar.gz"
 	@echo "$(COMMIT)" > $(OUT)/COMMIT
-	@test -z "$$(git status --porcelain)" && git archive --format=tar.gz --prefix=$(PROG)/ -o $(OUT)/$(PROG).tar.gz --add-file $(OUT)/COMMIT HEAD || echo "won't make tarball from dirty history"
+	@echo "$(VERSION)" > $(OUT)/VERSION
+	@test -z "$$(git status --porcelain)" || (echo "won't make tarball from dirty history" && exit 1);
+	@test -z "$$(git status --porcelain)" && git archive --format=tar.gz --prefix=$(PROG)/ -o $(OUT)/$(PROG).tar.gz --add-file $(OUT)/VERSION --add-file $(OUT)/COMMIT HEAD
 
 srpm: tarball
 	cp -r rpm $(OUT)
